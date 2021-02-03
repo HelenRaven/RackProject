@@ -1,10 +1,10 @@
 class Runtime
 
-  def initialize (app)
+  def initialize(app)
     @app = app
   end
 
-  def call (env)
+  def call(env)
     start = Time.now
     status, headers, body = @app.call(env)
     headers['X-runtime'] = "%fs" % (Time.now - start)

@@ -1,26 +1,58 @@
 class App
 
-  def call (env)
-    perform_request
-    [status, headers, body]
+  PARAMS = {
+    year: Time.now.year,
+    month: Time.now.month,
+    day: Time.now.day,
+    hour: Time.now.hour,
+    minute: Time.now.min,
+    second: Time.now.sec
+  }
+
+  def call(env)
+    @req = Rack::Request.new(env)
+    @res = Rack::Response.new
+    headers
+    body
+    @res.finish
   end
 
   private
 
-  def perform_request
-    sleep rand(2..3)
-  end
-
-  def status
-    200
-  end
-
   def headers
-    {'Content-Type' => 'text/plain'}
+    @res['Content-Type'] = 'text/plain'
   end
 
   def body
-    ["Welcome aboard!\n"]
+    format = @req.params["format"]
+    if format
+      set_param(format)
+    else
+      @res.status = 400
+      @res.write("No format found")
+    end
+  end
+
+  def set_param(format)
+    success = ""
+    failure = ""
+
+    format.split(",").each do |param|
+      param = param.to_sym
+
+      if PARAMS[param]
+        success += PARAMS[param].to_s + '-'
+      else
+        failure += param.to_s + ','
+      end
+    end
+
+    if failure == ""
+      @res.write(success.chop)
+    else
+      @res.status = 400
+      @res.write("Unknown time format [" + failure.chop + "]")
+    end
   end
 
 end
