@@ -11,31 +11,29 @@ class TimeFormatter
 
   def initialize(params)
     @params = params
-    @time_ary = []
-    @invalid_ary = []
+    @time_array = []
+    @invalid_array = []
   end
 
   def call
-    time = Time.now
-
     @params.each do |param|
       if PARAMS[param.to_sym]
-        @time_ary << time.strftime(PARAMS[param.to_sym])
+        @time_array << PARAMS[param.to_sym]
       else
-        @invalid_ary << param
+        @invalid_array << param
       end
     end
   end
 
   def success?
-    @invalid_ary.empty?
+    @invalid_array.empty?
   end
 
   def get_result
     if success?
-      @time_ary*"-"
+      Time.now.strftime(@time_array*"-")
     else
-      "Unknown time format " + @invalid_ary.to_s
+      "Unknown time format " + @invalid_array.to_s
     end
   end
 

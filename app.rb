@@ -5,37 +5,31 @@ class App
 
   def call(env)
     request = Rack::Request.new(env)
-    response(env["REQUEST_PATH"],request.params)
+    params = request.params[PARAMS_KEY]
+
+    if env["REQUEST_PATH"] == CORRECT_PATH && params
+      process_params(params)
+    else
+      response("unknown path", 404)
+    end
   end
 
   private
 
-  def response(path, params)
-    @response = Rack::Response.new
-    headers
+  def response(body, status)
+    header = {"Content-Type" => "text/plain"}
+    Rack::Response.new(body, status, header).finish
+  end
 
-    if path == CORRECT_PATH && params[PARAMS_KEY]
-      time = TimeFormatter.new(params[PARAMS_KEY].split(','))
-      time.call
-      status(time.success?)
-      body(time.get_result)
+  def process_params(params)
+    tf = TimeFormatter.new(params.split(','))
+    tf.call
+
+    if tf.success?
+      response(tf.get_result, 200)
     else
-      @response.status = 404
+      response(tf.get_result, 400)
     end
-
-    @response.finish
-  end
-
-  def status(success)
-    @response.status = success ? 200 : 400
-  end
-
-  def headers
-    @response.set_header("Content-type","text/plain")
-  end
-
-  def body(body)
-    @response.write(body)
   end
 
 end
