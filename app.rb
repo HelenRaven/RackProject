@@ -26,9 +26,9 @@ class App
     tf.call
 
     if tf.success?
-      response(tf.get_result, 200)
+      response(tf.time, 200)
     else
-      response(tf.get_result, 400)
+      response(tf.invalid, 400)
     end
   end
 

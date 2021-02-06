@@ -29,12 +29,12 @@ class TimeFormatter
     @invalid_array.empty?
   end
 
-  def get_result
-    if success?
-      Time.now.strftime(@time_array*"-")
-    else
-      "Unknown time format " + @invalid_array.to_s
-    end
+  def time
+    Time.now.strftime(@time_array*"-")
+  end
+
+  def invalid
+    "Unknown time format " + @invalid_array.to_s
   end
 
 end
