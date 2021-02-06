@@ -1,26 +1,35 @@
 class App
 
-  def call (env)
-    perform_request
-    [status, headers, body]
+  CORRECT_PATH = "/time"
+  PARAMS_KEY = "format"
+
+  def call(env)
+    request = Rack::Request.new(env)
+    params = request.params[PARAMS_KEY]
+
+    if env["REQUEST_PATH"] == CORRECT_PATH && params
+      process_params(params)
+    else
+      response("unknown path", 404)
+    end
   end
 
   private
 
-  def perform_request
-    sleep rand(2..3)
+  def response(body, status)
+    header = {"Content-Type" => "text/plain"}
+    Rack::Response.new(body, status, header).finish
   end
 
-  def status
-    200
-  end
+  def process_params(params)
+    tf = TimeFormatter.new(params.split(','))
+    tf.call
 
-  def headers
-    {'Content-Type' => 'text/plain'}
-  end
-
-  def body
-    ["Welcome aboard!\n"]
+    if tf.success?
+      response(tf.time, 200)
+    else
+      response(tf.invalid, 400)
+    end
   end
 
 end
